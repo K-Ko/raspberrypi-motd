@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# https://raw.githubusercontent.com/K-Ko/raspberrypi-motd/master/motd.sh
+#
 
 clear
 
@@ -8,7 +11,7 @@ function color (){
 
 function extend (){
   local str="$1"
-  let spaces=60-${#1}
+  let spaces=${2:-60}-${#1}
   while [ $spaces -gt 0 ]; do
     str="$str "
     let spaces=spaces-1
@@ -24,18 +27,18 @@ function center (){
     str=" $str"
     let spacesLeft=spacesLeft-1
   done
-  
+
   while [ $spacesRight -gt 0 ]; do
     str="$str "
     let spacesRight=spacesRight-1
   done
-  
+
   echo "$str"
 }
 
 function sec2time (){
   local input=$1
-  
+
   if [ $input -lt 60 ]; then
     echo "$input seconds"
   else
@@ -44,23 +47,23 @@ function sec2time (){
     ((hours=input/3600))
     ((input=input%3600))
     ((mins=input/60))
-    
+
     local daysPlural="s"
     local hoursPlural="s"
     local minsPlural="s"
-    
+
     if [ $days -eq 1 ]; then
       daysPlural=""
     fi
-    
+
     if [ $hours -eq 1 ]; then
       hoursPlural=""
     fi
-    
+
     if [ $mins -eq 1 ]; then
       minsPlural=""
     fi
-    
+
     echo "$days day$daysPlural, $hours hour$hoursPlural, $mins minute$minsPlural"
   fi
 }
@@ -90,30 +93,10 @@ header="$header$borderBar$(color $headerRaspberryColor "         (  : '~' :  )  
 header="$header$borderBar$(color $headerRaspberryColor "          '~ .~~~. ~'                                                         ")$borderBar\n"
 header="$header$borderBar$(color $headerRaspberryColor "              '~'                                                             ")$borderBar"
 
-me=$(whoami)
+hostname="$borderBar$(color $greetingsColor "$(center "$HOSTNAME")")$borderBar"
 
 # Greetings
-greetings="$borderBar$(color $greetingsColor "$(center "Welcome back, $me!")")$borderBar\n"
 greetings="$greetings$borderBar$(color $greetingsColor "$(center "$(date +"%A, %d %B %Y, %T")")")$borderBar"
-
-# System information
-read loginFrom loginIP loginDate <<< $(last $me --time-format iso -2 | awk 'NR==2 { print $2,$3,$4 }')
-
-# TTY login
-if [[ $loginDate == - ]]; then
-  loginDate=$loginIP
-  loginIP=$loginFrom
-fi
-
-if [[ $loginDate == *T* ]]; then
-  login="$(date -d $loginDate +"%A, %d %B %Y, %T") ($loginIP)"
-else
-  # Not enough logins
-  login="None"
-fi
-
-label1="$(extend "$login")"
-label1="$borderBar  $(color $statsLabelColor "Last Login....:") $label1$borderBar"
 
 uptime="$(sec2time $(cut -d "." -f 1 /proc/uptime))"
 uptime="$uptime ($(date -d "@"$(grep btime /proc/stat | cut -d " " -f 2) +"%d-%m-%Y %H:%M:%S"))"
@@ -130,7 +113,6 @@ label4="$borderBar  $(color $statsLabelColor "Home space....:") $label4$borderBa
 label5="$(extend "$(/opt/vc/bin/vcgencmd measure_temp | cut -c "6-9")ºC")"
 label5="$borderBar  $(color $statsLabelColor "Temperature...:") $label5$borderBar"
 
-stats="$label1\n$label2\n$label3\n$label4\n$label5"
+stats="$label2\n$borderEmptyLine\n$label3\n$label4\n$borderEmptyLine\n$label5"
 
-# Print motd
-echo -e "$header\n$borderEmptyLine\n$greetings\n$borderEmptyLine\n$stats\n$borderEmptyLine\n$borderBottomLine"       
+echo -e "$header\n$hostname\n$borderEmptyLine\n$greetings\n$borderEmptyLine\n$stats\n$borderEmptyLine\n$borderBottomLine"
