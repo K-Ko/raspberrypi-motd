@@ -2,6 +2,14 @@
 #
 # https://raw.githubusercontent.com/K-Ko/raspberrypi-motd/master/motd.sh
 #
+# Forked from https://github.com/gagle/raspberrypi-motd
+#
+
+borderColor=35
+headerLeafColor=32
+headerRaspberryColor=31
+greetingsColor=36
+statsLabelColor=33
 
 clear
 
@@ -68,20 +76,12 @@ function sec2time (){
   fi
 }
 
-borderColor=35
-headerLeafColor=32
-headerRaspberryColor=31
-greetingsColor=36
-statsLabelColor=33
-
 borderLine="━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-borderTopLine=$(color $borderColor "┏$borderLine┓")
-borderBottomLine=$(color $borderColor "┗$borderLine┛")
 borderBar=$(color $borderColor "┃")
 borderEmptyLine="$borderBar                                                                              $borderBar"
 
 # Header
-header="$borderTopLine\n$borderEmptyLine\n"
+header="$(color $borderColor "┏$borderLine┓")\n$borderEmptyLine\n"
 header="$header$borderBar$(color $headerLeafColor "          .~~.   .~~.                                                         ")$borderBar\n"
 header="$header$borderBar$(color $headerLeafColor "         '. \ ' ' / .'                                                        ")$borderBar\n"
 header="$header$borderBar$(color $headerRaspberryColor "          .~ .~~~..~.                      _                          _       ")$borderBar\n"
@@ -100,19 +100,26 @@ greetings="$greetings$borderBar$(color $greetingsColor "$(center "$(date +"%A, %
 
 uptime="$(sec2time $(cut -d "." -f 1 /proc/uptime))"
 uptime="$uptime ($(date -d "@"$(grep btime /proc/stat | cut -d " " -f 2) +"%d-%m-%Y %H:%M:%S"))"
+uptime="$(extend "$uptime")"
+uptime="$borderBar  $(color $statsLabelColor "Uptime........:") $uptime$borderBar"
 
-label2="$(extend "$uptime")"
-label2="$borderBar  $(color $statsLabelColor "Uptime........:") $label2$borderBar"
+memory="$(extend "$(free -m | awk 'NR==2 { printf "Total: %sMB, Used: %sMB, Free: %sMB",$2,$3,$4; }')")"
+memory="$borderBar  $(color $statsLabelColor "Memory........:") $memory$borderBar"
 
-label3="$(extend "$(free -m | awk 'NR==2 { printf "Total: %sMB, Used: %sMB, Free: %sMB",$2,$3,$4; }')")"
-label3="$borderBar  $(color $statsLabelColor "Memory........:") $label3$borderBar"
+diskspace="$(extend "$(df -h ~ | awk 'NR==2 { printf "Total: %sB, Used: %sB, Free: %sB",$2,$3,$4; }')")"
+diskspace="$borderBar  $(color $statsLabelColor "Home space....:") $diskspace$borderBar"
 
-label4="$(extend "$(df -h ~ | awk 'NR==2 { printf "Total: %sB, Used: %sB, Free: %sB",$2,$3,$4; }')")"
-label4="$borderBar  $(color $statsLabelColor "Home space....:") $label4$borderBar"
+temperature="$(extend "$(/opt/vc/bin/vcgencmd measure_temp | cut -c "6-9")ºC")"
+temperature="$borderBar  $(color $statsLabelColor "Temperature...:") $temperature$borderBar"
 
-label5="$(extend "$(/opt/vc/bin/vcgencmd measure_temp | cut -c "6-9")ºC")"
-label5="$borderBar  $(color $statsLabelColor "Temperature...:") $label5$borderBar"
+load="$(extend "$(awk '{ printf "%d%% / %d%% / %d%%", $1*100, $2*100, $3*100 }' /proc/loadavg)")"
+load="$borderBar  $(color $statsLabelColor "Load average..:") $load$borderBar"
 
-stats="$label2\n$borderEmptyLine\n$label3\n$label4\n$borderEmptyLine\n$label5"
+packages=$(extend "$(awk 'BEGIN {FS=";"}; {printf "%d updatable, %d security updates", $1, $2}' /etc/profile.d/.apt-check)")
+packages="$borderBar  $(color $statsLabelColor "Packages......:") $packages$borderBar"
 
-echo -e "$header\n$hostname\n$borderEmptyLine\n$greetings\n$borderEmptyLine\n$stats\n$borderEmptyLine\n$borderBottomLine"
+echo -e "$header\n$hostname\n$borderEmptyLine\n$greetings\n$borderEmptyLine"
+echo -e "$uptime\n$borderEmptyLine"
+echo -e "$memory\n$diskspace\n$load\n$temperature\n$borderEmptyLine"
+echo -e "$packages\n$borderEmptyLine"
+echo -e $(color $borderColor "┗$borderLine┛")"\n"
