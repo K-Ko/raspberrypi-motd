@@ -3,51 +3,22 @@ motd
 
 #### Message of the Day for the Raspberry Pi ####
 
-<p align="center">
-  <img src="https://github.com/gagle/raspberrypi-motd/blob/master/motd.png?raw=true"/>
-</p>
+<img src="https://raw.githubusercontent.com/K-Ko/raspberrypi-motd/master/motd.png"/>
 
-Written in pure Bash. No need to install any package. Tested with the Arch Linux ARM and Raspbian distributions.
+Written in pure Bash. No need to install any package.
 
-Download and save the `motd.sh` bash script in the Raspberry Pi. Remember to add execution permissions and change the owner:
+#### Download and save the `motd.sh` bash script in the Raspberry Pi ####
 
 ```bash
-$ sudo chown root:root motd.sh
-$ sudo chmod +x motd.sh
+$ sudo wget -qO /etc/profile.d/motd.sh https://raw.githubusercontent.com/K-Ko/raspberrypi-motd/master/motd.sh
 ```
 
-The following steps may vary depending on the OS. Arch Linux ARM is assumed.
+#### Remove the default MOTD ####
 
-- Autoexecute the script when the user logs in. There are multiple locations from where you can start the `motd.sh` script, for example using the `/etc/profile`. Save the `motd.sh` script in the directory `/etc/profile.d` and it will be executed after the login. More about [autostarting scripts](https://wiki.archlinux.org/index.php/Bash#Configuration_file_sourcing_order_at_startup).
+```bash
+$ sudo rm /etc/motd
+```
 
-- Remove the default MOTD. It is located in `/etc/motd`.
-  
-  ```bash
-  $ sudo rm /etc/motd
-  ```
-  
-- Remove the "last login" information. Disable the `PrintLastLog` option from the `sshd` service. Edit the `/etc/ssh/sshd_config` file and uncomment the line `#PrintLastLog yes`:
-  
-  ```bash
-  $ sudo nano /etc/ssh/sshd_config
-  ```
-  
-  Before:
-  
-  ```text
-  #PrintLastLog yes
-  ```
-  
-  After:
-  
-  ```text
-  PrintLastLog no
-  ```
-  
-  Restart the `sshd` service:
-  
-  ```bash
-  $ sudo systemctl restart sshd
-  ```
-
-Note: If you don't see the degree Celsius character correctly (`º`) make sure you have enabled a UTF8 locale ([Arch Linux locales](https://wiki.archlinux.org/index.php/locale)).
+Note: If you don't see the degree Celsius character correctly (`°`)
+make sure you have enabled a UTF8 locale
+([Arch Linux locales](https://wiki.archlinux.org/index.php/locale)).

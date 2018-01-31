@@ -91,38 +91,35 @@ header="$header$borderBar$(color $headerRaspberryColor "         (  : '~' :  )  
 header="$header$borderBar$(color $headerRaspberryColor "          '~ .~~~. ~'                                                         ")$borderBar\n"
 header="$header$borderBar$(color $headerRaspberryColor "              '~'                                                             ")$borderBar"
 
-hostname="$borderBar$(color $greetingsColor "$(center "$HOSTNAME")")$borderBar"
+echo -e "\n$header"
 
-# Greetings
-greetings="$greetings$borderBar$(color $greetingsColor "$(center "$(date +"%A, %d %B %Y, %T")")")$borderBar"
+echo -e "$borderBar$(color $greetingsColor "$(center "$HOSTNAME")")$borderBar\n$borderEmptyLine"
+echo -e "$borderBar$(color $greetingsColor "$(center "$(date +"%A, %d %B %Y, %T")")")$borderBar\n$borderEmptyLine"
 
 uptime="$(sec2time $(cut -d "." -f 1 /proc/uptime))"
 uptime="$uptime ($(date -d "@"$(grep btime /proc/stat | cut -d " " -f 2) +"%d-%m-%Y %H:%M:%S"))"
 uptime="$(extend "$uptime")"
-uptime="$borderBar  $(color $statsLabelColor "Uptime........:") $uptime$borderBar"
+echo -e "$borderBar  $(color $statsLabelColor "Uptime........:") $uptime$borderBar\n$borderEmptyLine"
 
 memory="$(extend "$(free -m | awk 'NR==2 { printf "Total: %sMB, Used: %sMB, Free: %sMB",$2,$3,$4; }')")"
-memory="$borderBar  $(color $statsLabelColor "Memory........:") $memory$borderBar"
+echo -e "$borderBar  $(color $statsLabelColor "Memory........:") $memory$borderBar"
 
 diskspace="$(extend "$(df -h ~ | awk 'NR==2 { printf "Total: %sB, Used: %sB, Free: %sB",$2,$3,$4; }')")"
-diskspace="$borderBar  $(color $statsLabelColor "Home space....:") $diskspace$borderBar"
-
-temperature="$(extend "$(/opt/vc/bin/vcgencmd measure_temp | cut -c "6-9")ºC")"
-temperature="$borderBar  $(color $statsLabelColor "Temperature...:") $temperature$borderBar"
+echo -e "$borderBar  $(color $statsLabelColor "Home space....:") $diskspace$borderBar"
 
 load="$(extend "$(awk '{ printf "%d%% / %d%% / %d%%", $1*100, $2*100, $3*100 }' /proc/loadavg)")"
-load="$borderBar  $(color $statsLabelColor "Load average..:") $load$borderBar"
+echo -e "$borderBar  $(color $statsLabelColor "Load average..:") $load$borderBar"
 
-packages=$(extend "$(awk 'BEGIN {FS=";"}; {printf "%d updatable, %d security updates", $1, $2}' /etc/profile.d/.apt-check)")
-packages="$borderBar  $(color $statsLabelColor "Packages......:") $packages$borderBar"
+temperature="$(extend "$(/opt/vc/bin/vcgencmd measure_temp | cut -c "6-9")ºC")"
+echo -e "$borderBar  $(color $statsLabelColor "Temperature...:") $temperature$borderBar\n$borderEmptyLine"
 
-echo -e "\n$header\n$hostname\n$borderEmptyLine\n$greetings\n$borderEmptyLine"
-echo -e "$uptime\n$borderEmptyLine"
-echo -e "$memory\n$diskspace\n$load\n$temperature\n$borderEmptyLine"
-echo -e "$packages\n$borderEmptyLine"
+if [ -s /etc/profile.d/.apt-check ]; then
+    packages=$(extend "$(awk 'BEGIN {FS=";"}; {printf "%d updatable, %d security updates", $1, $2}' /etc/profile.d/.apt-check)")
+    echo -e "$borderBar  $(color $statsLabelColor "Packages......:") $packages$borderBar\n$borderEmptyLine"
+fi
+
 echo -e $(color $borderColor "┗$borderLine┛")
 
 # 2 line prompt
 PS1='\nec:$(printf %-3d $?) \t  \u@\h:\w\n\['$'\033[1m\033[31m\\]# \[\033(B\033[m\\]'
 PS2=$'\[\033[1m\033[31m\\]> \[\033(B\033[m\\]'
-
