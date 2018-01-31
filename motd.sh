@@ -11,8 +11,6 @@ headerRaspberryColor=31
 greetingsColor=36
 statsLabelColor=33
 
-clear
-
 function color (){
   echo "\e[$1m$2\e[0m"
 }
@@ -118,7 +116,7 @@ load="$borderBar  $(color $statsLabelColor "Load average..:") $load$borderBar"
 packages=$(extend "$(awk 'BEGIN {FS=";"}; {printf "%d updatable, %d security updates", $1, $2}' /etc/profile.d/.apt-check)")
 packages="$borderBar  $(color $statsLabelColor "Packages......:") $packages$borderBar"
 
-echo -e "$header\n$hostname\n$borderEmptyLine\n$greetings\n$borderEmptyLine"
+echo -e "\n$header\n$hostname\n$borderEmptyLine\n$greetings\n$borderEmptyLine"
 echo -e "$uptime\n$borderEmptyLine"
 echo -e "$memory\n$diskspace\n$load\n$temperature\n$borderEmptyLine"
 echo -e "$packages\n$borderEmptyLine"
