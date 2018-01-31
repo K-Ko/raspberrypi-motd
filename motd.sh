@@ -120,4 +120,9 @@ echo -e "\n$header\n$hostname\n$borderEmptyLine\n$greetings\n$borderEmptyLine"
 echo -e "$uptime\n$borderEmptyLine"
 echo -e "$memory\n$diskspace\n$load\n$temperature\n$borderEmptyLine"
 echo -e "$packages\n$borderEmptyLine"
-echo -e $(color $borderColor "┗$borderLine┛")"\n"
+echo -e $(color $borderColor "┗$borderLine┛")
+
+# 2 line prompt
+PS1='\nec:$(printf %-3d $?) \t  \u@\h:\w\n\['$'\033[1m\033[31m\\]# \[\033(B\033[m\\]'
+PS2=$'\[\033[1m\033[31m\\]> \[\033(B\033[m\\]'
+
